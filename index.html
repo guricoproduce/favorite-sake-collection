@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorite Sake Collection — NFT Viewer</title>
+    <style>
+        :root {
+            --bg:           #0c0c14;
+            --surface:      #13131f;
+            --surface2:     #1a1a2e;
+            --border:       #2a2a42;
+            --accent:       #7c5cfc;
+            --accent-glow:  rgba(124, 92, 252, 0.25);
+            --text:         #e8e8f0;
+            --text-muted:   #7878a0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ── ヘッダー ── */
+        header {
+            padding: 2.5rem 1.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c5cfc 0%, #c05cfc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ── 検索エリア ── */
+        .search-section {
+            max-width: 640px;
+            margin: 2.5rem auto 0;
+            padding: 0 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.9rem 1.1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-width: 0;
+        }
+
+        input[type="text"]::placeholder { color: var(--text-muted); }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .btn-search {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.6rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            white-space: nowrap;
+        }
+
+        .btn-search:hover:not(:disabled) { opacity: 0.85; }
+        .btn-search:active:not(:disabled) { transform: scale(0.97); }
+        .btn-search:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        /* ── ステータスバー ── */
+        .status-bar {
+            margin-top: 0.9rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            min-height: 1.4rem;
+        }
+
+        /* ── ギャラリー ── */
+        .gallery-wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 5rem;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 1.25rem;
+        }
+
+        /* ── NFTカード ── */
+        .nft-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .nft-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px rgba(124, 92, 252, 0.2);
+        }
+
+        .nft-image-wrap {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: var(--surface2);
+            overflow: hidden;
+        }
+
+        .nft-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .nft-card:hover .nft-image { transform: scale(1.04); }
+
+        .nft-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 2.5rem;
+        }
+
+        .nft-info {
+            padding: 0.8rem 0.9rem 0.9rem;
+        }
+
+        .nft-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nft-id {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ── 状態表示 ── */
+        .state-box {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .state-box p { color: var(--text-muted); margin-top: 0.75rem; }
+
+        .spinner {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-box {
+            grid-column: 1 / -1;
+            background: rgba(255, 80, 80, 0.08);
+            border: 1px solid rgba(255, 80, 80, 0.25);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: #ff7070;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Favorite Sake Collection</div>
+    <h1>NFT Viewer</h1>
+    <p class="subtitle">ウォレットアドレスを入力すると保有NFTを一覧表示します</p>
+</header>
+
+<div class="search-section">
+    <div class="input-group">
+        <input
+            type="text"
+            id="walletInput"
+            placeholder="0x... ウォレットアドレスを入力"
+            autocomplete="off"
+            spellcheck="false"
+            maxlength="42"
+        />
+        <button class="btn-search" id="searchBtn" onclick="fetchNFTs()">
+            表示する
+        </button>
+    </div>
+    <div id="statusBar" class="status-bar"></div>
+</div>
+
+<div class="gallery-wrap">
+    <div class="gallery" id="gallery"></div>
+</div>
+
+<script>
+const gallery   = document.getElementById('gallery');
+const statusBar = document.getElementById('statusBar');
+const searchBtn = document.getElementById('searchBtn');
+const walletInput = document.getElementById('walletInput');
+
+walletInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') fetchNFTs();
+});
+
+async function fetchNFTs() {
+    const wallet = walletInput.value.trim();
+
+    if (!wallet) {
+        setStatus('ウォレットアドレスを入力してください');
+        return;
+    }
+    if (!/^0x[0-9a-fA-F]{40}$/.test(wallet)) {
+        setStatus('⚠️ 正しいウォレットアドレス（0x...）を入力してください');
+        return;
+    }
+
+    searchBtn.disabled = true;
+    setStatus('NFTデータを取得中...');
+    gallery.innerHTML = `
+        <div class="state-box">
+            <div class="spinner"></div>
+            <p>取得しています...</p>
+        </div>
+    `;
+
+    try {
+        const allNFTs = await fetchAllPages(wallet);
+
+        if (allNFTs.length === 0) {
+            gallery.innerHTML = `
+                <div class="state-box">
+                    <div style="font-size:2.5rem">🍶</div>
+                    <p>このウォレットにはFavorite Sake CollectionのNFTがありません</p>
+                </div>
+            `;
+            setStatus('0件');
+        } else {
+            renderNFTs(allNFTs);
+            setStatus(`${allNFTs.length} 件のNFTを表示中`);
+        }
+    } catch (err) {
+        gallery.innerHTML = `
+            <div class="error-box">
+                ❌ 取得に失敗しました<br>
+                <small style="margin-top:0.5rem;display:block">${escapeHtml(err.message)}</small>
+            </div>
+        `;
+        setStatus('エラー');
+        console.error(err);
+    } finally {
+        searchBtn.disabled = false;
+    }
+}
+
+async function fetchAllPages(wallet) {
+    let pageKey = null;
+    let allNFTs = [];
+
+    do {
+        const params = new URLSearchParams({ wallet });
+        if (pageKey) params.set('pageKey', pageKey);
+
+        // APIキーはサーバー側（/api/nfts）で処理されるため、ここには書かない
+        const res = await fetch(`/api/nfts?${params}`);
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || `サーバーエラー HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        allNFTs = allNFTs.concat(data.ownedNfts || []);
+        pageKey = data.pageKey || null;
+
+        if (allNFTs.length >= 500) break;
+    } while (pageKey);
+
+    return allNFTs;
+}
+
+function renderNFTs(nfts) {
+    gallery.innerHTML = nfts.map(nft => {
+        const name    = nft.name || nft.contract?.name || `Token #${parseTokenId(nft.tokenId)}`;
+        const idLabel = `#${parseTokenId(nft.tokenId)}`;
+        const imgUrl  = resolveImageUrl(nft);
+
+        return `
+            <div class="nft-card">
+                <div class="nft-image-wrap">
+                    ${imgUrl
+                        ? `<img class="nft-image"
+                                src="${escapeHtml(imgUrl)}"
+                                alt="${escapeHtml(name)}"
+                                loading="lazy"
+                                onerror="this.parentElement.innerHTML='<div class=nft-image-placeholder>🍶</div>'"
+                            >`
+                        : `<div class="nft-image-placeholder">🍶</div>`
+                    }
+                </div>
+                <div class="nft-info">
+                    <div class="nft-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+                    <div class="nft-id">${escapeHtml(idLabel)}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function resolveImageUrl(nft) {
+    const img = nft.image;
+    if (!img) return null;
+    const url = img.cachedUrl || img.thumbnailUrl || img.originalUrl || img.pngUrl;
+    return ipfsToHttps(url);
+}
+
+function ipfsToHttps(url) {
+    if (!url) return null;
+    if (url.startsWith('ipfs://')) {
+        return `https://cloudflare-ipfs.com/ipfs/${url.slice(7)}`;
+    }
+    return url;
+}
+
+function parseTokenId(id) {
+    if (!id) return '?';
+    if (id.startsWith('0x')) return parseInt(id, 16).toString();
+    return id;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function setStatus(msg) {
+    statusBar.textContent = msg;
+}
+</script>
+
+</body>
+</html>
