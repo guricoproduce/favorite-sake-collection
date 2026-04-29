@@ -40,7 +40,6 @@
             text-align: center;
         }
 
-        /* 四隅の金の装飾枠 */
         .header-box {
             display: inline-block;
             position: relative;
@@ -121,10 +120,7 @@
             padding: 0 1.5rem;
         }
 
-        .input-group {
-            display: flex;
-            gap: 0.75rem;
-        }
+        .input-group { display: flex; gap: 0.75rem; }
 
         input[type="text"] {
             flex: 1;
@@ -141,7 +137,6 @@
         }
 
         input[type="text"]::placeholder { color: var(--text-muted); }
-
         input[type="text"]:focus {
             border-color: var(--gold);
             box-shadow: 0 0 0 3px var(--gold-glow);
@@ -170,7 +165,6 @@
 
         .btn-search:disabled { opacity: 0.35; cursor: not-allowed; }
 
-        /* ── ステータスバー ── */
         .status-bar {
             margin-top: 0.85rem;
             font-size: 0.8rem;
@@ -193,7 +187,7 @@
             gap: 1.5rem;
         }
 
-        /* ── NFTカード（ラベル風） ── */
+        /* ── NFTカード ── */
         .nft-card {
             background: var(--surface);
             border: 2px solid var(--gold-dark);
@@ -202,9 +196,9 @@
             transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
             position: relative;
             box-shadow: 0 2px 12px rgba(184,134,11,0.08);
+            cursor: pointer;
         }
 
-        /* 内側の細い金枠 */
         .nft-card::after {
             content: '';
             position: absolute;
@@ -218,9 +212,7 @@
         .nft-card:hover {
             transform: translateY(-7px);
             border-color: var(--gold-light);
-            box-shadow:
-                0 14px 40px rgba(184,134,11,0.2),
-                0 0 0 1px rgba(184,134,11,0.3);
+            box-shadow: 0 14px 40px rgba(184,134,11,0.2), 0 0 0 1px rgba(184,134,11,0.3);
         }
 
         .nft-image-wrap {
@@ -311,7 +303,6 @@
             letter-spacing: 0.08em;
         }
 
-        /* ── フッター ── */
         footer {
             text-align: center;
             padding: 1.5rem;
@@ -319,6 +310,327 @@
             font-size: 0.72rem;
             color: var(--text-muted);
             letter-spacing: 0.2em;
+        }
+
+        /* ── 応援統計バー ── */
+        .stats-panel {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem 0.75rem;
+            display: none;
+        }
+
+        .stats-panel.active { display: block; }
+
+        .stats-inner {
+            border: 1px solid rgba(184,134,11,0.28);
+            border-radius: 3px;
+            background: rgba(251,246,236,0.75);
+            padding: 0.75rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .stats-total {
+            display: flex;
+            align-items: baseline;
+            gap: 0.35rem;
+            flex-shrink: 0;
+            padding-right: 1.25rem;
+            border-right: 1px solid rgba(184,134,11,0.22);
+        }
+
+        .stats-label-small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.2em;
+        }
+
+        .stats-number {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: var(--gold-dark);
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .stats-unit {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        .stats-breweries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            align-items: center;
+            flex: 1;
+        }
+
+        .brewery-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(184,134,11,0.07);
+            border: 1px solid rgba(184,134,11,0.22);
+            border-radius: 2px;
+            padding: 0.22rem 0.6rem;
+            font-size: 0.76rem;
+            letter-spacing: 0.04em;
+            transition: background 0.15s;
+        }
+
+        .brewery-chip:hover { background: rgba(184,134,11,0.14); }
+
+        .brewery-chip-name { color: var(--text); font-weight: 700; }
+
+        .brewery-chip-count {
+            color: var(--gold-dark);
+            font-weight: 900;
+            font-size: 0.85rem;
+            min-width: 1.1em;
+            text-align: right;
+        }
+
+        /* ══════════════════════════════════════
+           モーダル
+        ══════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 7, 3, 0.72);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: #FEFEFE;
+            border: 2px solid var(--gold-dark);
+            border-radius: 3px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+            position: relative;
+            transform: translateY(24px) scale(0.97);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold-dark) transparent;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: translateY(0) scale(1);
+        }
+
+        /* 四隅の金装飾 */
+        .modal-box::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background:
+                linear-gradient(var(--gold), var(--gold)) 0 0 / 24px 3px no-repeat,
+                linear-gradient(var(--gold), var(--gold)) 0 0 / 3px 24px no-repeat,
+                linear-gradient(var(--gold), var(--gold)) 100% 0 / 24px 3px no-repeat,
+                linear-gradient(var(--gold), var(--gold)) 100% 0 / 3px 24px no-repeat,
+                linear-gradient(var(--gold), var(--gold)) 0 100% / 24px 3px no-repeat,
+                linear-gradient(var(--gold), var(--gold)) 0 100% / 3px 24px no-repeat,
+                linear-gradient(var(--gold), var(--gold)) 100% 100% / 24px 3px no-repeat,
+                linear-gradient(var(--gold), var(--gold)) 100% 100% / 3px 24px no-repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 閉じるボタン */
+        .modal-close {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: transparent;
+            border: 1px solid var(--gold-dark);
+            color: var(--text-muted);
+            width: 30px;
+            height: 30px;
+            border-radius: 2px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: var(--font);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            z-index: 2;
+        }
+
+        .modal-close:hover {
+            background: var(--gold);
+            color: #FEFEFE;
+            border-color: var(--gold);
+        }
+
+        /* 画像 */
+        .modal-image-wrap {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: var(--surface2);
+            border-bottom: 2px solid var(--gold-dark);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s;
+        }
+
+        .modal-image:hover { transform: scale(1.03); }
+
+        .modal-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--text-muted);
+        }
+
+        /* コンテンツ */
+        .modal-content {
+            padding: 1.5rem 1.75rem 2rem;
+        }
+
+        .modal-nft-name {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: var(--gold-dark);
+            letter-spacing: 0.1em;
+            line-height: 1.5;
+            padding-right: 2.5rem;
+        }
+
+        .modal-nft-id {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            font-family: 'Courier New', monospace;
+            margin-top: 0.25rem;
+            letter-spacing: 0.04em;
+        }
+
+        /* 区切り線（モーダル内） */
+        .modal-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.2rem 0;
+        }
+
+        .modal-divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold-dark), transparent);
+        }
+
+        .modal-divider-diamond {
+            width: 6px;
+            height: 6px;
+            border: 1px solid var(--gold);
+            transform: rotate(45deg);
+            margin: 0 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* 属性テーブル */
+        .modal-section-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-attrs {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(184,134,11,0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .attr-row {
+            display: flex;
+            align-items: baseline;
+            padding: 0.6rem 0.9rem;
+            border-bottom: 1px solid rgba(184,134,11,0.12);
+            transition: background 0.15s;
+        }
+
+        .attr-row:last-child { border-bottom: none; }
+        .attr-row:nth-child(even) { background: rgba(184,134,11,0.03); }
+        .attr-row:hover { background: rgba(184,134,11,0.07); }
+
+        .attr-key {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            min-width: 110px;
+            flex-shrink: 0;
+            letter-spacing: 0.06em;
+        }
+
+        .attr-val {
+            font-size: 0.88rem;
+            color: var(--gold-dark);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            word-break: break-word;
+        }
+
+        /* 説明文 */
+        .modal-desc { margin-top: 0.75rem; }
+
+        .desc-paragraph {
+            font-size: 0.85rem;
+            color: var(--text);
+            line-height: 1.95;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.6rem;
+        }
+
+        .desc-section-header {
+            font-size: 0.72rem;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+            font-weight: 700;
+            margin: 1.2rem 0 0.65rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(184,134,11,0.25);
+        }
+
+        .desc-specs { margin-top: 0.2rem; }
+
+        /* ── レスポンシブ ── */
+        @media (max-width: 480px) {
+            .modal-box { max-height: 96vh; }
+            .modal-content { padding: 1.2rem 1.2rem 1.5rem; }
+            .header-box { padding: 2rem 2rem; }
+            .attr-key { min-width: 80px; }
         }
     </style>
 </head>
@@ -355,13 +667,54 @@
     <div id="statusBar" class="status-bar"></div>
 </div>
 
+<!-- 応援統計バー -->
+<div class="stats-panel" id="statsPanel">
+    <div class="stats-inner">
+        <div class="stats-total">
+            <span class="stats-label-small">応援総数</span>
+            <span class="stats-number" id="statsTotal">0</span>
+            <span class="stats-unit">点</span>
+        </div>
+        <div class="stats-breweries" id="statsBreweries"></div>
+    </div>
+</div>
+
 <div class="gallery-wrap">
     <div class="gallery" id="gallery"></div>
 </div>
 
 <footer>Favorite Sake Collection — NFT Viewer</footer>
 
+<!-- ══ モーダル ══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal-box" id="modalBox">
+        <button class="modal-close" onclick="closeModal()" title="閉じる">✕</button>
+
+        <div class="modal-image-wrap" id="modalImageWrap"></div>
+
+        <div class="modal-content">
+            <div class="modal-nft-name" id="modalName"></div>
+            <div class="modal-nft-id"  id="modalId"></div>
+
+            <div class="modal-divider">
+                <div class="modal-divider-line"></div>
+                <div class="modal-divider-diamond"></div>
+                <div class="modal-divider-line"></div>
+            </div>
+
+            <div class="modal-section-label" id="modalAttrLabel"></div>
+            <div id="modalAttrs"></div>
+
+            <div class="modal-desc" id="modalDesc"></div>
+        </div>
+    </div>
+</div>
+
 <script>
+// ── データストア ──
+let nftStore = [];
+
+// ── DOM ──
 const gallery     = document.getElementById('gallery');
 const statusBar   = document.getElementById('statusBar');
 const searchBtn   = document.getElementById('searchBtn');
@@ -371,19 +724,22 @@ walletInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') fetchNFTs();
 });
 
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+});
+
+// ── データ取得 ──
 async function fetchNFTs() {
     const wallet = walletInput.value.trim();
 
-    if (!wallet) {
-        setStatus('ウォレットアドレスを入力してください');
-        return;
-    }
+    if (!wallet) { setStatus('ウォレットアドレスを入力してください'); return; }
     if (!/^0x[0-9a-fA-F]{40}$/.test(wallet)) {
         setStatus('⚠️ 正しいウォレットアドレス（0x...）を入力してください');
         return;
     }
 
     searchBtn.disabled = true;
+    document.getElementById('statsPanel').classList.remove('active');
     setStatus('データを取得中...');
     gallery.innerHTML = `
         <div class="state-box">
@@ -404,8 +760,10 @@ async function fetchNFTs() {
             `;
             setStatus('0件');
         } else {
+            nftStore = allNFTs;
             renderNFTs(allNFTs);
-            setStatus(`${allNFTs.length} 点のラベルを表示中`);
+            showStats(allNFTs);
+            setStatus(`${allNFTs.length} 点のラベルを表示中　— クリックで詳細を表示`);
         }
     } catch (err) {
         gallery.innerHTML = `
@@ -430,7 +788,6 @@ async function fetchAllPages(wallet) {
         if (pageKey) params.set('pageKey', pageKey);
 
         const res = await fetch(`/api/nfts?${params}`);
-
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
             throw new Error(err.error || `サーバーエラー HTTP ${res.status}`);
@@ -439,29 +796,29 @@ async function fetchAllPages(wallet) {
         const data = await res.json();
         allNFTs = allNFTs.concat(data.ownedNfts || []);
         pageKey = data.pageKey || null;
-
         if (allNFTs.length >= 500) break;
     } while (pageKey);
 
     return allNFTs;
 }
 
+// ── カード描画 ──
 function renderNFTs(nfts) {
-    gallery.innerHTML = nfts.map(nft => {
+    gallery.innerHTML = nfts.map((nft, i) => {
         const name    = nft.name || nft.contract?.name || `Token #${parseTokenId(nft.tokenId)}`;
         const idLabel = `#${parseTokenId(nft.tokenId)}`;
         const imgUrl  = resolveImageUrl(nft);
 
         return `
-            <div class="nft-card">
+            <div class="nft-card" onclick="openModal(${i})" role="button" tabindex="0"
+                 onkeydown="if(event.key==='Enter')openModal(${i})">
                 <div class="nft-image-wrap">
                     ${imgUrl
                         ? `<img class="nft-image"
                                 src="${escapeHtml(imgUrl)}"
                                 alt="${escapeHtml(name)}"
                                 loading="lazy"
-                                onerror="this.parentElement.innerHTML='<div class=nft-image-placeholder>🍶</div>'"
-                            >`
+                                onerror="this.parentElement.innerHTML='<div class=nft-image-placeholder>🍶</div>'">`
                         : `<div class="nft-image-placeholder">🍶</div>`
                     }
                 </div>
@@ -474,6 +831,190 @@ function renderNFTs(nfts) {
     }).join('');
 }
 
+// ══ モーダル ══
+function openModal(index) {
+    const nft  = nftStore[index];
+    if (!nft) return;
+
+    const name    = nft.name || nft.contract?.name || `Token #${parseTokenId(nft.tokenId)}`;
+    const idLabel = `Token #${parseTokenId(nft.tokenId)}`;
+    const imgUrl  = resolveImageUrl(nft);
+    const attrs   = nft.raw?.metadata?.attributes || nft.attributes || [];
+    const desc    = nft.description || nft.raw?.metadata?.description || '';
+
+    // 画像
+    const imageWrap = document.getElementById('modalImageWrap');
+    if (imgUrl) {
+        imageWrap.innerHTML = `
+            <img class="modal-image"
+                 src="${escapeHtml(imgUrl)}"
+                 alt="${escapeHtml(name)}"
+                 onerror="this.parentElement.innerHTML='<div class=modal-image-placeholder>🍶</div>'">
+        `;
+    } else {
+        imageWrap.innerHTML = `<div class="modal-image-placeholder">🍶</div>`;
+    }
+
+    // 名称・ID
+    document.getElementById('modalName').textContent = name;
+    document.getElementById('modalId').textContent   = idLabel;
+
+    // 属性
+    const attrsEl    = document.getElementById('modalAttrs');
+    const attrLabel  = document.getElementById('modalAttrLabel');
+
+    if (attrs.length > 0) {
+        attrLabel.textContent = '銘柄情報';
+        attrsEl.innerHTML = `
+            <div class="modal-attrs">
+                ${attrs.map(a => `
+                    <div class="attr-row">
+                        <span class="attr-key">${escapeHtml(String(a.trait_type || a.key || ''))}</span>
+                        <span class="attr-val">${escapeHtml(String(a.value ?? ''))}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        attrLabel.textContent = '';
+        attrsEl.innerHTML = '';
+    }
+
+    // 説明文（整形して表示）
+    const descEl = document.getElementById('modalDesc');
+    if (desc) {
+        descEl.innerHTML = formatDescription(desc);
+        descEl.style.display = 'block';
+    } else {
+        descEl.style.display = 'none';
+    }
+
+    // 表示
+    document.getElementById('modalOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // スクロールを先頭に
+    document.getElementById('modalBox').scrollTop = 0;
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+// ── 応援統計 ──
+function showStats(nfts) {
+    const panel      = document.getElementById('statsPanel');
+    const totalEl    = document.getElementById('statsTotal');
+    const breweriesEl = document.getElementById('statsBreweries');
+
+    totalEl.textContent = nfts.length;
+
+    // 蔵元別に集計
+    const counts = {};
+    nfts.forEach(nft => {
+        const name = extractBrewery(nft);
+        counts[name] = (counts[name] || 0) + 1;
+    });
+
+    // 多い順にソート
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+    breweriesEl.innerHTML = sorted.map(([name, count]) => `
+        <div class="brewery-chip">
+            <span class="brewery-chip-name">${escapeHtml(name)}</span>
+            <span class="brewery-chip-count">${count}</span>
+        </div>
+    `).join('');
+
+    panel.classList.add('active');
+}
+
+function extractBrewery(nft) {
+    // 1. NFT名の【...】を最優先（例: 【Komachi】純米大吟醸 → "Komachi"）
+    const nftName = nft.name || '';
+    const bracket = nftName.match(/【([^】]+)】/);
+    if (bracket) return bracket[1].trim();
+
+    // 2. attributes から探す
+    const attrs = nft.raw?.metadata?.attributes || nft.attributes || [];
+    for (const a of attrs) {
+        if (['酒造会社', '蔵元', 'brewery', 'Brewery'].includes(String(a.trait_type || ''))) {
+            return String(a.value).trim();
+        }
+    }
+
+    // 3. description の 酒造会社 / 蔵元 をパース
+    const desc = nft.description || nft.raw?.metadata?.description || '';
+    const NEXT  = '原材料|原料米|精米歩合|アルコール度|容量|日本酒度|酸度|使用酵母|内容量';
+    const m1 = desc.match(new RegExp(`酒造会社\\s+(.+?)(?=\\s+(?:${NEXT})|$)`));
+    if (m1) return m1[1].trim();
+    const m2 = desc.match(new RegExp(`蔵元\\s+(.+?)(?=\\s+(?:${NEXT})|$)`));
+    if (m2) return m2[1].trim();
+
+    return '不明';
+}
+
+// ── 説明文の整形 ──
+function formatDescription(raw) {
+    if (!raw) return '';
+
+    const SAKE_KEYS = [
+        '商品名', '酒造会社', '蔵元', '原材料', '原料米', '精米歩合',
+        'アルコール度', '容量', '内容量', '日本酒度', '酸度',
+        '使用酵母', '種別', '保存方法', '製造者', '産地',
+    ];
+
+    // 【...】でセクション分割
+    const parts = raw.split(/(【[^】]+】)/);
+    let html = '';
+    let inSpec = false;
+
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i].trim();
+        if (!part) continue;
+
+        if (/^【[^】]+】$/.test(part)) {
+            html += `<div class="desc-section-header">${escapeHtml(part)}</div>`;
+            inSpec = true;
+        } else if (inSpec) {
+            // スペック行をキーバリューに分割
+            const keyReg = new RegExp(`(${SAKE_KEYS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
+            const tokens = part.split(keyReg).map(s => s.trim()).filter(Boolean);
+            let rows = '';
+
+            for (let j = 0; j < tokens.length; j++) {
+                if (SAKE_KEYS.includes(tokens[j])) {
+                    const key        = tokens[j];
+                    const nextIsKey  = SAKE_KEYS.includes(tokens[j + 1]);
+                    const val        = nextIsKey ? '' : (tokens[j + 1] || '').trim();
+                    if (!nextIsKey && j + 1 < tokens.length) j++;
+                    rows += `<div class="attr-row">
+                        <span class="attr-key">${escapeHtml(key)}</span>
+                        <span class="attr-val">${escapeHtml(val)}</span>
+                    </div>`;
+                }
+            }
+
+            html += rows
+                ? `<div class="modal-attrs desc-specs">${rows}</div>`
+                : `<p class="desc-paragraph">${escapeHtml(part)}</p>`;
+            inSpec = false;
+        } else {
+            // 通常の説明文 — 句点後のスペースで改行
+            const formatted = escapeHtml(part).replace(/。\s+/g, '。<br>');
+            html += `<p class="desc-paragraph">${formatted}</p>`;
+        }
+    }
+
+    return html;
+}
+
+// ── ユーティリティ ──
 function resolveImageUrl(nft) {
     const img = nft.image;
     if (!img) return null;
@@ -483,9 +1024,7 @@ function resolveImageUrl(nft) {
 
 function ipfsToHttps(url) {
     if (!url) return null;
-    if (url.startsWith('ipfs://')) {
-        return `https://cloudflare-ipfs.com/ipfs/${url.slice(7)}`;
-    }
+    if (url.startsWith('ipfs://')) return `https://cloudflare-ipfs.com/ipfs/${url.slice(7)}`;
     return url;
 }
 
