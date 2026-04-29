@@ -935,7 +935,12 @@ function showStats(nfts) {
 }
 
 function extractBrewery(nft) {
-    // 1. attributes から探す
+    // 1. NFT名の【...】を最優先（例: 【Komachi】純米大吟醸 → "Komachi"）
+    const nftName = nft.name || '';
+    const bracket = nftName.match(/【([^】]+)】/);
+    if (bracket) return bracket[1].trim();
+
+    // 2. attributes から探す
     const attrs = nft.raw?.metadata?.attributes || nft.attributes || [];
     for (const a of attrs) {
         if (['酒造会社', '蔵元', 'brewery', 'Brewery'].includes(String(a.trait_type || ''))) {
@@ -943,7 +948,7 @@ function extractBrewery(nft) {
         }
     }
 
-    // 2. description の 酒造会社 / 蔵元 をパース
+    // 3. description の 酒造会社 / 蔵元 をパース
     const desc = nft.description || nft.raw?.metadata?.description || '';
     const NEXT  = '原材料|原料米|精米歩合|アルコール度|容量|日本酒度|酸度|使用酵母|内容量';
     const m1 = desc.match(new RegExp(`酒造会社\\s+(.+?)(?=\\s+(?:${NEXT})|$)`));
