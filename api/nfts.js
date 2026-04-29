@@ -2,7 +2,7 @@
 // APIキーはここで使う。ブラウザからは見えない。
 
 const CONTRACT_ADDRESS = '0xb0748c9372b12a89b36d58effba4f388ab4beb2c';
-const CHAIN            = process.env.CHAIN || 'eth-mainnet';
+const CHAIN            = process.env.CHAIN || 'polygon-mainnet';
 
 module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
