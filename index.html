@@ -312,6 +312,89 @@
             letter-spacing: 0.2em;
         }
 
+        /* ── 応援統計バー ── */
+        .stats-panel {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem 0.75rem;
+            display: none;
+        }
+
+        .stats-panel.active { display: block; }
+
+        .stats-inner {
+            border: 1px solid rgba(184,134,11,0.28);
+            border-radius: 3px;
+            background: rgba(251,246,236,0.75);
+            padding: 0.75rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .stats-total {
+            display: flex;
+            align-items: baseline;
+            gap: 0.35rem;
+            flex-shrink: 0;
+            padding-right: 1.25rem;
+            border-right: 1px solid rgba(184,134,11,0.22);
+        }
+
+        .stats-label-small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.2em;
+        }
+
+        .stats-number {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: var(--gold-dark);
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .stats-unit {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        .stats-breweries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            align-items: center;
+            flex: 1;
+        }
+
+        .brewery-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(184,134,11,0.07);
+            border: 1px solid rgba(184,134,11,0.22);
+            border-radius: 2px;
+            padding: 0.22rem 0.6rem;
+            font-size: 0.76rem;
+            letter-spacing: 0.04em;
+            transition: background 0.15s;
+        }
+
+        .brewery-chip:hover { background: rgba(184,134,11,0.14); }
+
+        .brewery-chip-name { color: var(--text); font-weight: 700; }
+
+        .brewery-chip-count {
+            color: var(--gold-dark);
+            font-weight: 900;
+            font-size: 0.85rem;
+            min-width: 1.1em;
+            text-align: right;
+        }
+
         /* ══════════════════════════════════════
            モーダル
         ══════════════════════════════════════ */
@@ -584,6 +667,18 @@
     <div id="statusBar" class="status-bar"></div>
 </div>
 
+<!-- 応援統計バー -->
+<div class="stats-panel" id="statsPanel">
+    <div class="stats-inner">
+        <div class="stats-total">
+            <span class="stats-label-small">応援総数</span>
+            <span class="stats-number" id="statsTotal">0</span>
+            <span class="stats-unit">点</span>
+        </div>
+        <div class="stats-breweries" id="statsBreweries"></div>
+    </div>
+</div>
+
 <div class="gallery-wrap">
     <div class="gallery" id="gallery"></div>
 </div>
@@ -644,6 +739,7 @@ async function fetchNFTs() {
     }
 
     searchBtn.disabled = true;
+    document.getElementById('statsPanel').classList.remove('active');
     setStatus('データを取得中...');
     gallery.innerHTML = `
         <div class="state-box">
@@ -666,6 +762,7 @@ async function fetchNFTs() {
         } else {
             nftStore = allNFTs;
             renderNFTs(allNFTs);
+            showStats(allNFTs);
             setStatus(`${allNFTs.length} 点のラベルを表示中　— クリックで詳細を表示`);
         }
     } catch (err) {
@@ -807,6 +904,54 @@ function closeModal() {
 
 function handleOverlayClick(e) {
     if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+// ── 応援統計 ──
+function showStats(nfts) {
+    const panel      = document.getElementById('statsPanel');
+    const totalEl    = document.getElementById('statsTotal');
+    const breweriesEl = document.getElementById('statsBreweries');
+
+    totalEl.textContent = nfts.length;
+
+    // 蔵元別に集計
+    const counts = {};
+    nfts.forEach(nft => {
+        const name = extractBrewery(nft);
+        counts[name] = (counts[name] || 0) + 1;
+    });
+
+    // 多い順にソート
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+    breweriesEl.innerHTML = sorted.map(([name, count]) => `
+        <div class="brewery-chip">
+            <span class="brewery-chip-name">${escapeHtml(name)}</span>
+            <span class="brewery-chip-count">${count}</span>
+        </div>
+    `).join('');
+
+    panel.classList.add('active');
+}
+
+function extractBrewery(nft) {
+    // 1. attributes から探す
+    const attrs = nft.raw?.metadata?.attributes || nft.attributes || [];
+    for (const a of attrs) {
+        if (['酒造会社', '蔵元', 'brewery', 'Brewery'].includes(String(a.trait_type || ''))) {
+            return String(a.value).trim();
+        }
+    }
+
+    // 2. description の 酒造会社 / 蔵元 をパース
+    const desc = nft.description || nft.raw?.metadata?.description || '';
+    const NEXT  = '原材料|原料米|精米歩合|アルコール度|容量|日本酒度|酸度|使用酵母|内容量';
+    const m1 = desc.match(new RegExp(`酒造会社\\s+(.+?)(?=\\s+(?:${NEXT})|$)`));
+    if (m1) return m1[1].trim();
+    const m2 = desc.match(new RegExp(`蔵元\\s+(.+?)(?=\\s+(?:${NEXT})|$)`));
+    if (m2) return m2[1].trim();
+
+    return '不明';
 }
 
 // ── 説明文の整形 ──
