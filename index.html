@@ -520,21 +520,27 @@
         }
 
         /* 説明文 */
-        .modal-desc {
-            margin-top: 1rem;
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            line-height: 1.85;
+        .modal-desc { margin-top: 0.75rem; }
+
+        .desc-paragraph {
+            font-size: 0.85rem;
+            color: var(--text);
+            line-height: 1.95;
             letter-spacing: 0.04em;
+            margin-bottom: 0.6rem;
         }
 
-        .modal-no-attrs {
-            text-align: center;
-            padding: 1.5rem 0;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            letter-spacing: 0.1em;
+        .desc-section-header {
+            font-size: 0.72rem;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+            font-weight: 700;
+            margin: 1.2rem 0 0.65rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(184,134,11,0.25);
         }
+
+        .desc-specs { margin-top: 0.2rem; }
 
         /* ── レスポンシブ ── */
         @media (max-width: 480px) {
@@ -774,13 +780,17 @@ function openModal(index) {
         `;
     } else {
         attrLabel.textContent = '';
-        attrsEl.innerHTML = `<div class="modal-no-attrs">メタデータが見つかりませんでした</div>`;
+        attrsEl.innerHTML = '';
     }
 
-    // 説明文
+    // 説明文（整形して表示）
     const descEl = document.getElementById('modalDesc');
-    descEl.textContent = desc;
-    descEl.style.display = desc ? 'block' : 'none';
+    if (desc) {
+        descEl.innerHTML = formatDescription(desc);
+        descEl.style.display = 'block';
+    } else {
+        descEl.style.display = 'none';
+    }
 
     // 表示
     document.getElementById('modalOverlay').classList.add('active');
@@ -797,6 +807,61 @@ function closeModal() {
 
 function handleOverlayClick(e) {
     if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+// ── 説明文の整形 ──
+function formatDescription(raw) {
+    if (!raw) return '';
+
+    const SAKE_KEYS = [
+        '商品名', '酒造会社', '蔵元', '原材料', '原料米', '精米歩合',
+        'アルコール度', '容量', '内容量', '日本酒度', '酸度',
+        '使用酵母', '種別', '保存方法', '製造者', '産地',
+    ];
+
+    // 【...】でセクション分割
+    const parts = raw.split(/(【[^】]+】)/);
+    let html = '';
+    let inSpec = false;
+
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i].trim();
+        if (!part) continue;
+
+        if (/^【[^】]+】$/.test(part)) {
+            html += `<div class="desc-section-header">${escapeHtml(part)}</div>`;
+            inSpec = true;
+        } else if (inSpec) {
+            // スペック行をキーバリューに分割
+            const keyReg = new RegExp(`(${SAKE_KEYS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
+            const tokens = part.split(keyReg).map(s => s.trim()).filter(Boolean);
+            let rows = '';
+
+            for (let j = 0; j < tokens.length; j++) {
+                if (SAKE_KEYS.includes(tokens[j])) {
+                    const key        = tokens[j];
+                    const nextIsKey  = SAKE_KEYS.includes(tokens[j + 1]);
+                    const val        = nextIsKey ? '' : (tokens[j + 1] || '').trim();
+                    if (!nextIsKey && j + 1 < tokens.length) j++;
+                    rows += `<div class="attr-row">
+                        <span class="attr-key">${escapeHtml(key)}</span>
+                        <span class="attr-val">${escapeHtml(val)}</span>
+                    </div>`;
+                }
+            }
+
+            html += rows
+                ? `<div class="modal-attrs desc-specs">${rows}</div>`
+                : `<p class="desc-paragraph">${escapeHtml(part)}</p>`;
+            inSpec = false;
+        } else {
+            // 通常の説明文 — 句点後のスペースで改行
+            const formatted = escapeHtml(part).replace(/。\s+/g, '。<br>');
+            html += `<p class="desc-paragraph">${formatted}</p>`;
+        }
+    }
+
+    return html;
 }
 
 // ── ユーティリティ ──
