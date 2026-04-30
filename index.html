@@ -626,10 +626,33 @@
         .desc-specs { margin-top: 0.2rem; }
 
         /* ── レスポンシブ ── */
+        @media (max-width: 600px) {
+            /* 全remベースのフォントを約5%縮小 */
+            html { font-size: 95%; }
+
+            .header-box { padding: 2rem 1.5rem; }
+
+            /* 入力欄＋ボタンを縦積みに */
+            .input-group { flex-direction: column; }
+            .btn-search { width: 100%; }
+
+            /* ギャラリーを少し小さいカードに */
+            .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+
+            /* 統計バーを縦積みに */
+            .stats-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .stats-total {
+                border-right: none;
+                border-bottom: 1px solid rgba(184,134,11,0.22);
+                padding-right: 0;
+                padding-bottom: 0.6rem;
+                width: 100%;
+            }
+        }
+
         @media (max-width: 480px) {
             .modal-box { max-height: 96vh; }
             .modal-content { padding: 1.2rem 1.2rem 1.5rem; }
-            .header-box { padding: 2rem 2rem; }
             .attr-key { min-width: 80px; }
         }
     </style>
