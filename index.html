@@ -912,13 +912,16 @@ function showStats(nfts) {
     const totalEl    = document.getElementById('statsTotal');
     const breweriesEl = document.getElementById('statsBreweries');
 
-    totalEl.textContent = nfts.length;
+    // balance フィールドが複数枚保有を示す（ERC-1155対応）
+    const totalCount = nfts.reduce((sum, nft) => sum + (parseInt(nft.balance) || 1), 0);
+    totalEl.textContent = totalCount;
 
-    // 蔵元別に集計
+    // 蔵元別に集計（balance考慮）
     const counts = {};
     nfts.forEach(nft => {
         const name = extractBrewery(nft);
-        counts[name] = (counts[name] || 0) + 1;
+        const qty  = parseInt(nft.balance) || 1;
+        counts[name] = (counts[name] || 0) + qty;
     });
 
     // 多い順にソート
