@@ -5,10 +5,15 @@ const CONTRACT_ADDRESS = '0xb0748c9372b12a89b36d58effba4f388ab4beb2c';
 const CHAIN            = process.env.CHAIN || 'polygon-mainnet';
 
 module.exports = async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    // 同じサイトの index.html からだけ呼ぶ。他サイトからの呼び出しで Alchemy の無料枠を使われないよう、CORS は許可しない
+    const origin = req.headers.origin;
+    if (origin && origin !== `https://${req.headers.host}`) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (req.headers['sec-fetch-site'] === 'cross-site') {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
 
-    if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'GET')    return res.status(405).json({ error: 'Method not allowed' });
 
     const { wallet, pageKey } = req.query;
@@ -32,7 +37,12 @@ module.exports = async function handler(req, res) {
         withMetadata:           'true',
         pageSize:               '100',
     });
-    if (pageKey) params.set('pageKey', pageKey);
+    if (pageKey) {
+        if (typeof pageKey !== 'string' || pageKey.length > 200) {
+            return res.status(400).json({ error: '無効な pageKey です' });
+        }
+        params.set('pageKey', pageKey);
+    }
 
     try {
         const url      = `https://${CHAIN}.g.alchemy.com/nft/v3/${apiKey}/getNFTsForOwner?${params}`;
